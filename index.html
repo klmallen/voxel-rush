@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOXEL RUSH // AMP TITAN SHOWDOWN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Damage Vignette Flash, Bullet-Time Slow-Mo Overlay & Comic Speed-Lines -->
+  <div id="damage-flash"></div>
+  <div id="slowmo-vignette"></div>
+  <div id="comic-speedlines"></div>
+
+  <!-- Floating Comic Onomatopoeia Layer -->
+  <div id="popup-layer"></div>
+
+  <!-- ========================================================= -->
+  <!-- IN-GAME HI-FI RUSH COMIC HUD                              -->
+  <!-- ========================================================= -->
+  <div id="hud" class="hidden">
+    <!-- TOP LEFT: 1:1 HI-FI RUSH UNIFIED JAGGED COMIC BLADE HUD + 3 ANGLED OVERLAPPING WEAPON CARDS -->
+    <div class="hud-hero-col">
+      <div class="hifi-topleft-wing">
+        <!-- Jagged Comic Starburst Emblem with KAI Portrait -->
+        <div class="hifi-emblem-wrap">
+          <div class="hifi-emblem-burst"></div>
+          <div class="hifi-portrait-hex">
+            <img src="./assets/hero-portrait.jpg" alt="KAI" />
+          </div>
+          <span id="hero-hp-text" class="hifi-hp-badge">100</span>
+        </div>
+
+        <!-- Unified Tapered Jagged Blade Bars (Upper Orange Reverb + Main Segmented Lime-Green HP!) -->
+        <div class="hifi-blade-stack">
+          <div class="hifi-reverb-blade">
+            <div id="hero-reverb-fill" class="hifi-reverb-fill"></div>
+            <span id="hero-reverb-text" class="hifi-rev-num">35%</span>
+          </div>
+          <div class="hifi-hp-blade">
+            <div id="hero-hp-fill" class="hifi-hp-fill"></div>
+            <div class="hifi-hp-segments"></div>
+          </div>
+          <div id="overdrive-ready-pill" class="overdrive-ready hidden">⚡ [Q] OVERDRIVE RIFF!! ⚡</div>
+        </div>
+      </div>
+
+      <!-- 3 OVERLAPPING FAN-ANGLED HI-FI RUSH COMIC WEAPON CARDS (Custom SVG Instrument Silhouettes!) -->
+      <div class="hifi-weapon-fan">
+        <button class="weapon-slot wf-card wf-guitar active" data-weapon="guitar" title="按 1 切换拖地重型朋克电贝斯">
+          <span class="wf-key">1</span>
+          <svg class="wf-svg" viewBox="0 0 64 64" aria-hidden="true">
+            <!-- Offset 4-String Heavy Punk Electric Bass Silhouette -->
+            <path d="M46 5 L56 11 L50 18 L34 34 C41 37 44 45 38 53 C32 60 20 60 13 53 C7 47 9 37 17 33 C14 27 18 21 24 24 L42 8 Z" fill="#fff3d6" stroke="#11131b" stroke-width="4" stroke-linejoin="round"/>
+            <ellipse cx="25" cy="44" rx="11" ry="9" transform="rotate(-38 25 44)" fill="#ff5a1f"/>
+            <line x1="17" y1="51" x2="49" y2="12" stroke="#4dfcff" stroke-width="3.2"/>
+            <line x1="21" y1="54" x2="52" y2="15" stroke="#ffe600" stroke-width="2.2"/>
+          </svg>
+          <span class="wf-label">PUNK BASS</span>
+        </button>
+
+        <button class="weapon-slot wf-card wf-keytar" data-weapon="keytar" title="按 2 切换赛博键盘斧">
+          <span class="wf-key">2</span>
+          <svg class="wf-svg" viewBox="0 0 64 64" aria-hidden="true">
+            <!-- Cyber Keytar Blade Silhouette with Piano Keys -->
+            <path d="M10 38 L44 10 L56 22 L46 30 L54 38 L24 56 Z" fill="#00e5cc" stroke="#11131b" stroke-width="4" stroke-linejoin="round"/>
+            <polygon points="18,40 42,20 48,26 24,46" fill="#ffffff" stroke="#11131b" stroke-width="2.5"/>
+            <line x1="25" y1="34" x2="29" y2="38" stroke="#11131b" stroke-width="3.5"/>
+            <line x1="31" y1="29" x2="35" y2="33" stroke="#11131b" stroke-width="3.5"/>
+            <line x1="37" y1="24" x2="41" y2="28" stroke="#11131b" stroke-width="3.5"/>
+            <line x1="12" y1="42" x2="26" y2="54" stroke="#ff2a85" stroke-width="4"/>
+          </svg>
+          <span class="wf-label">KEYTAR</span>
+        </button>
+
+        <button class="weapon-slot wf-card wf-bass" data-weapon="bass" title="按 3 切换低音贝斯巨锤">
+          <span class="wf-key">3</span>
+          <svg class="wf-svg" viewBox="0 0 64 64" aria-hidden="true">
+            <!-- Twin-Speaker Bass Amp Hammer Silhouette -->
+            <rect x="28" y="28" width="8" height="30" rx="2" fill="#262a38" stroke="#11131b" stroke-width="3.5"/>
+            <rect x="10" y="8" width="44" height="24" rx="3" fill="#ff5a1f" stroke="#11131b" stroke-width="4"/>
+            <circle cx="22" cy="20" r="6.5" fill="#11131b" stroke="#ffe600" stroke-width="2.5"/>
+            <circle cx="22" cy="20" r="2.5" fill="#4dfcff"/>
+            <circle cx="42" cy="20" r="6.5" fill="#11131b" stroke="#ffe600" stroke-width="2.5"/>
+            <circle cx="42" cy="20" r="2.5" fill="#ffe600"/>
+            <line x1="32" y1="30" x2="32" y2="56" stroke="#ffe600" stroke-width="2.5"/>
+          </svg>
+          <span class="wf-label">BASS AMP</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TOP CENTER: CUPHEAD × HI-FI RUSH 3-PHASE BOSS BAR -->
+    <div id="hud-boss" class="hud-boss">
+      <div class="boss-header">
+        <div class="portrait-frame boss-frame">
+          <img src="./assets/boss-portrait.jpg" alt="REX-808" />
+        </div>
+        <div class="boss-title-wrap">
+          <div class="boss-name"><span id="boss-name-main">REX-808</span> <span id="boss-name-sub" class="boss-sub">// THE AMP TITAN</span></div>
+          <div class="boss-phase-tags">
+            <span id="phase-pill-1" class="phase-pill active">P1: SOUNDCHECK</span>
+            <span id="phase-pill-2" class="phase-pill">P2: OVERLOAD</span>
+            <span id="phase-pill-3" class="phase-pill">P3: MELTDOWN</span>
+          </div>
+        </div>
+      </div>
+      <div class="comic-bar boss-hp-bar">
+        <div id="boss-hp-fill" class="comic-bar-fill"></div>
+        <div class="phase-notch" style="left: 33.3%" title="Phase 3"></div>
+        <div class="phase-notch" style="left: 66.6%" title="Phase 2"></div>
+      </div>
+    </div>
+
+    <!-- TOP RIGHT: AUTHENTIC HI-FI RUSH FLOATING PAINTED STYLE RANK EMBLEM -->
+    <div class="hud-score">
+      <div class="rank-row hifi-rank-float">
+        <div class="score-details">
+          <div id="rank-callout" class="rank-callout">GROOVY!</div>
+          <div class="combo-line"><span id="combo-num">0</span> <span class="combo-word">HITS!</span></div>
+          <div class="score-line"><span id="score-num">0</span></div>
+        </div>
+        <div class="rank-badge-wrap">
+          <div id="style-rank" class="rank-letter rank-D">D</div>
+        </div>
+      </div>
+      <div class="hud-util-btns">
+        <button id="map-btn" class="comic-mini-btn btn-cyan" title="展开/收起关卡设计蓝图 [B]">🗺️ 蓝图 [B]</button>
+        <button id="jukebox-btn" class="comic-mini-btn btn-magenta" title="切换配乐曲风 [M]">🎵 切歌 [M]</button>
+        <button id="movelist-btn" class="comic-mini-btn btn-orange" title="展开/收起出招表 [H]">📜 出招表 [H]</button>
+        <button id="pause-btn" class="comic-mini-btn btn-yellow" title="暂停 [ESC]">⏸ 暂停</button>
+      </div>
+      <button id="mute-btn" class="comic-mini-btn mute-pill-sub" title="切换音效">🔊 122 BPM</button>
+
+      <!-- LIVE INTERACTIVE CAMPUS BLUEPRINT MAP PANEL ([B] to toggle!) -->
+      <div id="blueprint-panel" class="blueprint-panel hidden">
+        <div class="bp-header">
+          <span>🗺️ VANDELAY S型浮空园区蓝图</span>
+          <button id="close-map-btn" class="bp-close">[B] ✕</button>
+        </div>
+        <div class="bp-img-wrap">
+          <img src="./assets/level-blueprint.jpg" alt="Level Blueprint" />
+          <div id="bp-player-pin" class="bp-player-pin" style="left: 22%; top: 76%;">KAI</div>
+        </div>
+        <div class="bp-legend">
+          <span>①八角喷泉</span><span>②液压桥&amp;音轨</span><span>③木格双层中庭</span><span>④悬空货柜&amp;5光环</span><span>⑤音箱斗兽场</span>
+        </div>
+      </div>
+
+      <!-- HI-FI RUSH LIVE COMBO MOVE LIST & INPUT CHAIN (Collapsed by default, [H] to toggle!) -->
+      <div id="movelist-panel" class="movelist-panel hidden">
+        <div class="ml-header">
+          <span>⚡ COMBO 出招表</span>
+          <span class="ml-hint">[H] 收起</span>
+        </div>
+        <div id="live-chain" class="live-chain">READY! 试试连招吧!</div>
+        <div class="ml-row" data-move="basic4">
+          <span class="ml-keys">J·J·J·J</span>
+          <span class="ml-name">节拍四连 BEAT HIT!</span>
+        </div>
+        <div class="ml-row" data-move="craterSlam">
+          <span class="ml-keys">J·J·K</span>
+          <span class="ml-name">💥 音浪裂地砸坑</span>
+        </div>
+        <div class="ml-row" data-move="airCombo">
+          <span class="ml-keys">SPACE+J/K</span>
+          <span class="ml-name">空中连斩 &amp; 坠地大坑</span>
+        </div>
+        <div class="ml-row" data-move="dashRiff">
+          <span class="ml-keys">SHIFT+J</span>
+          <span class="ml-name">冲刺突进斩</span>
+        </div>
+        <div class="ml-row" data-move="ranged">
+          <span class="ml-keys">U / LB</span>
+          <span class="ml-name">🎵 乐器远程体素弹幕</span>
+        </div>
+        <div class="ml-row" data-move="parry">
+          <span class="ml-keys">F / E</span>
+          <span class="ml-name">💖 粉色弹反秒杀</span>
+        </div>
+        <div class="ml-row" data-move="swap">
+          <span class="ml-keys">1 / 2 / 3</span>
+          <span class="ml-name">🎸 切吉他/键盘/贝斯</span>
+        </div>
+        <div class="ml-row" data-move="overdrive">
+          <span class="ml-keys">Q (满能)</span>
+          <span class="ml-name">⚡ 过载激光大招</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMERCIAL INTERACTIVE SOUNDCHECK TUTORIAL CARD -->
+    <div id="tutorial-card" class="tutorial-card hidden">
+      <div class="tut-top">
+        <span id="tut-badge" class="tut-badge">SOUNDCHECK 1 / 4</span>
+        <span id="tut-progress" class="tut-progress">0 / 3</span>
+      </div>
+      <div id="tut-title" class="tut-title">🎸 跟随 128 BPM 节拍挥动乐器！</div>
+      <div id="tut-desc" class="tut-desc">观察脚下光环或底部节拍条，按 [J / 左键] 击中试音音箱。</div>
+      <div class="tut-footer">
+        <div class="tut-bar"><div id="tut-bar-fill" class="tut-bar-fill"></div></div>
+        <button id="skip-tut-btn" class="tut-skip-btn">直达巨蛋 Boss [TAB] ⏭</button>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE AAA KEYCAP & BULLET-TIME PROMPT OVERLAY -->
+    <div id="interactive-prompt" class="interactive-prompt hidden">
+      <div id="ip-tag" class="ip-tag">实战训练 1 / 5</div>
+      <div id="ip-title" class="ip-title">连续按下 J 打出节拍四连击！</div>
+      <div id="ip-keys" class="ip-keys"></div>
+      <div id="ip-sub" class="ip-sub">每按一次按键都会实时点亮下一步连招</div>
+    </div>
+
+    <!-- PHASE 3 RHYTHM PARRY CLASH PROMPT -->
+    <div id="clash-prompt" class="clash-prompt hidden">
+      <div class="clash-title">⚡ RHYTHM PARRY SHOWDOWN! ⚡</div>
+      <div id="clash-sub" class="clash-sub">PRESS [F] ON EACH BEAT!</div>
+      <div class="clash-dots">
+        <span id="clash-dot-1" class="clash-dot">1</span>
+        <span id="clash-dot-2" class="clash-dot">2</span>
+        <span id="clash-dot-3" class="clash-dot">3</span>
+      </div>
+    </div>
+
+    <!-- PHASE / EVENT COMIC BANNER -->
+    <div id="event-banner" class="event-banner hidden">
+      <div id="banner-title" class="banner-title">PHASE 2 // TURBO AMP OVERLOAD!</div>
+      <div id="banner-sub" class="banner-sub">SMASH THE AMP PYLONS FOR HEALTH &amp; REVERB!</div>
+    </div>
+
+    <!-- BOTTOM LEFT: HI-FI RUSH LICENSED-STYLE TRACK CREDIT TOAST -->
+    <div id="track-credit" class="track-credit hidden">
+      <div id="tc-artist" class="tc-artist">VOXEL RUSH BAND</div>
+      <div id="tc-song" class="tc-song">"FUNK PUNK OVERDRIVE"</div>
+      <div id="tc-meta" class="tc-meta">122 BPM · TRACK 01</div>
+    </div>
+
+    <!-- BOTTOM RIGHT: HI-FI RUSH BRIGHT YELLOW GEAR / VOXEL COUNTER PILL -->
+    <div class="hud-gear-pill">
+      <span class="gear-icon">⚙</span>
+      <span id="voxel-num">0</span>
+      <span class="gear-sep">|</span>
+      <span>💿 <b id="vinyl-num">0/6</b></span>
+    </div>
+
+    <!-- CONTEXTUAL 808 SONIC RING GRAPPLE PILL -->
+    <div id="grapple-pill" class="grapple-pill hidden">⚡ 按 <b>[G / F]</b> 或跃入光环 — 启动 808 五连音速光环飞跃!!</div>
+
+    <!-- BOTTOM CENTER: HI-FI RUSH LIVE 128 BPM BEAT VISUALIZER BAR -->
+    <div class="hud-rhythm">
+      <div id="beat-grade" class="beat-grade">128 BPM // FEEL THE BEAT!</div>
+      <div class="rhythm-track">
+        <div class="rhythm-wing left-wing">
+          <div class="beat-tick" data-side="L" data-idx="0"></div>
+          <div class="beat-tick" data-side="L" data-idx="1"></div>
+        </div>
+        <div id="beat-core" class="beat-core">
+          <span class="beat-core-icon">⚡</span>
+          <span class="beat-core-bpm">808</span>
+        </div>
+        <div class="rhythm-wing right-wing">
+          <div class="beat-tick" data-side="R" data-idx="0"></div>
+          <div class="beat-tick" data-side="R" data-idx="1"></div>
+        </div>
+      </div>
+      <div class="controls-strip">
+        <span><b>WASD</b>视角向移动</span>
+        <span><b>滚轮/Z·C</b>缩放/转视角</span>
+        <span><b>J</b>拖地贝斯连斩</span>
+        <span><b>K</b>砸地大坑</span>
+        <span><b>U/中键</b>远程音浪</span>
+        <span><b>SPACE</b>二段跳/上音轨</span>
+        <span><b>G/F</b>光环牵引&amp;弹反</span>
+        <span><b>B</b>看关卡蓝图</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- CUPHEAD × HI-FI RUSH BOSS INTRO SPLASH                    -->
+  <!-- ========================================================= -->
+  <div id="boss-intro" class="boss-intro hidden">
+    <div class="intro-stripe">
+      <div class="intro-kicker">A RHYTHM BRAWL IS SURELY BREWING!!</div>
+      <div id="intro-boss-name" class="intro-title">REX-808 // THE AMP TITAN</div>
+      <div id="intro-boss-sub" class="intro-sub">DROP THE BEAT — 128 BPM</div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- COMMERCIAL TITLE SCREEN (WEAPON + DIFFICULTY + SOUNDCHECK)-->
+  <!-- ========================================================= -->
+  <div id="title-screen" class="overlay-screen">
+    <div class="title-bg" style="background-image: url('./assets/title-splash.jpg')"></div>
+    <div class="title-halftone"></div>
+    <div class="title-content">
+      <div class="title-tag">TRUE VOXEL RHYTHM-ACTION × CUPHEAD BOSS RUSH</div>
+      <h1 class="title-logo">
+        <span class="logo-voxel">VOXEL</span>
+        <span class="logo-rush">RUSH!</span>
+      </h1>
+      <div class="title-subtitle">体素节拍：音箱泰坦 REX-808 巅峰对决</div>
+
+      <!-- WINDING S-CURVE 5-ZONE 3D BLUEPRINT ROUTE -->
+      <div class="tour-section">
+        <div class="loadout-label">🗺️ S 型立体浮空园区蓝图实装（局内按 [B] 实时查看蓝图定位 · 滚轮自由拉远视角！）</div>
+        <div class="route-strip">
+          <div class="route-node"><span class="rn-num">ZONE 01</span><b>八角喷泉广场</b><small>贝斯教学+阶梯</small></div>
+          <span class="route-arrow">➡</span>
+          <div class="route-node"><span class="rn-num">ZONE 02</span><b>液压桥&amp;弧形音轨</b><small>高空跳板+滑轨</small></div>
+          <span class="route-arrow">➡</span>
+          <div class="route-node"><span class="rn-num">ZONE 03</span><b>木格双层中庭</b><small>L型二楼+捷径桥</small></div>
+          <span class="route-arrow">➡</span>
+          <div class="route-node"><span class="rn-num">ZONE 04</span><b>悬空货柜&amp;5光环</b><small>彩色集装箱飞跃</small></div>
+          <span class="route-arrow">➡</span>
+          <div class="route-node rn-boss"><span class="rn-num">ZONE 05</span><b>巨型音箱斗兽场</b><small>弹跳泰坦决战</small></div>
+        </div>
+      </div>
+
+      <!-- SELECT INITIAL MUSICAL INSTRUMENT, DIFFICULTY & CUSTOM MP3 -->
+      <div class="loadout-bar">
+        <div class="loadout-split">
+          <div class="loadout-group">
+            <div class="loadout-label">主乐器武器（默认拖地重型朋克电贝斯，局内 1/2/3 热切）</div>
+            <div class="selector-row" id="title-weapon-select">
+              <button class="sel-pill active" data-weapon="guitar">🎸 朋克重型电贝斯</button>
+              <button class="sel-pill" data-weapon="keytar">🎹 键盘琴刃</button>
+              <button class="sel-pill" data-weapon="bass">🔊 音箱巨锤</button>
+            </div>
+          </div>
+          <div class="loadout-group">
+            <div class="loadout-label">演出难度 &amp; 自定义配乐（局内按 M 切换 4 种曲风）</div>
+            <div class="selector-row" id="title-diff-select">
+              <button class="sel-pill active" data-diff="normal">♪ 普通</button>
+              <button class="sel-pill" data-diff="hard">⚡ 摇滚</button>
+              <button class="sel-pill" data-diff="master">🔥 大师</button>
+              <label class="sel-pill mp3-upload-pill" title="导入你自己的 MP3/WAV 摇滚曲目踩点战斗！">
+                🎵 导入本地 MP3
+                <input id="custom-mp3-input" type="file" accept="audio/*" hidden />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="custom-mp3-status" class="mp3-status hidden"></div>
+      </div>
+
+      <div class="title-cta-row">
+        <button id="start-tutorial-btn" class="comic-cta-btn">
+          <span>🎸 开始大场景探索（从 ZONE 01 出发!）</span>
+        </button>
+        <button id="start-direct-btn" class="comic-cta-btn cta-cyan">
+          <span>⚡ 快速直达终极巨蛋 BOSS!</span>
+        </button>
+      </div>
+
+      <div class="title-controls-note">
+        WASD 移动 · J/左键 四连节拍击 · K/右键 重砸破景 · SPACE 跳跃 · SHIFT 冲刺 · F/E 粉色弹反 · Q 满能大招 · 1/2/3 切乐器
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAUSE OVERLAY [ESC]                                       -->
+  <!-- ========================================================= -->
+  <div id="pause-screen" class="overlay-screen hidden">
+    <div class="end-backdrop"></div>
+    <div class="scorecard-panel pause-panel">
+      <div class="end-kicker">BACKSTAGE // PAUSED</div>
+      <h2 class="end-title">PAUSED</h2>
+      <div class="pause-actions">
+        <button id="resume-btn" class="comic-cta-btn">▶ 继续演奏 [ESC]</button>
+        <button id="pause-restart-btn" class="comic-cta-btn cta-cyan">↻ 重新挑战 BOSS</button>
+        <button id="pause-title-btn" class="comic-cta-btn cta-dark">⌂ 返回主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- CUPHEAD × HI-FI RUSH VICTORY / DEFEAT SCORECARD           -->
+  <!-- ========================================================= -->
+  <div id="end-screen" class="overlay-screen hidden">
+    <div class="end-backdrop"></div>
+    <div class="scorecard-panel">
+      <div id="end-kicker" class="end-kicker">ENCORE COMPLETE!!</div>
+      <h2 id="end-title" class="end-title">KNOCKOUT!!</h2>
+      <div class="scorecard-grid">
+        <div class="stat-row"><span>CLEAR TIME</span><strong id="stat-time">00:00</strong></div>
+        <div class="stat-row"><span>TOTAL SCORE</span><strong id="stat-score">0</strong></div>
+        <div class="stat-row"><span>MAX COMBO</span><strong id="stat-combo">0</strong></div>
+        <div class="stat-row"><span>ON-BEAT PERFECTS</span><strong id="stat-perfect">0%</strong></div>
+        <div class="stat-row"><span>PINK PARRIES</span><strong id="stat-parries">0</strong></div>
+        <div class="stat-row"><span>VOXELS SMASHED</span><strong id="stat-voxels">0</strong></div>
+      </div>
+      <div class="final-grade-box">
+        <span>FINAL RANK</span>
+        <div id="final-rank-stamp" class="final-rank-stamp">S</div>
+      </div>
+      <div class="end-btn-row">
+        <button id="next-stage-btn" class="comic-cta-btn cta-cyan hidden"><span>➡ 下一关巡演!</span></button>
+        <button id="restart-btn" class="comic-cta-btn"><span>⚡ 再来一曲!</span></button>
+        <button id="end-title-btn" class="comic-cta-btn cta-dark"><span>⌂ 选关菜单</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
